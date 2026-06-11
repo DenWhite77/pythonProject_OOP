@@ -6,5 +6,4 @@ project/
 │   └── test_product_category.py
 ├── main.py
 └── ...
-''' 
-"<!-- PR -->" 
+'''
