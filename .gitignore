@@ -14,3 +14,7 @@ __pycache__/
 # Testing
 .pytest_cache/
 .coverage
+
+# src
+demo_1.py
+demo_2.py
