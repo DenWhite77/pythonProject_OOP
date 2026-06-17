@@ -6,8 +6,8 @@ from pathlib import Path
 # Добавляем путь к корневой папке проекта, чтобы импортировать модули из src
 sys.path.append(str(Path(__file__).parent.parent / 'src'))
 
-from product_category import Product, Category  # noqa: E402
-
+from product import Product
+from category import Category
 
 def test_product_initialization():
     p = Product("Ноутбук", "Игровой", 150000.0, 3)
