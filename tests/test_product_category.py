@@ -1,12 +1,13 @@
 from unittest.mock import patch
 import sys
 from pathlib import Path
+import pytest
 
-# Добавляем путь к корневой папке проекта, чтобы импортировать модули из src
+# Добавляем путь к корневой папке проекта
 sys.path.append(str(Path(__file__).parent.parent / 'src'))
 
-from product import Product
-from category import Category
+# Импортируем ВСЕ классы из одного места
+from src.main_16_1 import Product, Category, Smartphone, LawnGrass
 
 def test_product_initialization():
     p = Product("Ноутбук", "Игровой", 150000.0, 3)
@@ -149,3 +150,95 @@ def test_product_str_after_price_change():
     # Меняем цену (для теста используем прямое изменение, чтобы обойти сеттер)
     product._Product__price = 150.0
     assert str(product) == "Test, 150.0 руб. Остаток: 10 шт."
+
+    # ===================== НОВЫЕ ТЕСТЫ ДЛЯ ДЗ 16 =====================
+    class TestInheritance:
+        """Тесты для классов-наследников Product."""
+
+        def test_smartphone_creation(self):
+            """Тест создания смартфона."""
+            phone = Smartphone("Samsung", "Desc", 1000.0, 10, 95.5, "S23", 256, "Серый")
+            assert phone.name == "Samsung"
+            assert phone.price == 1000.0
+            assert phone.quantity == 10
+            assert phone.efficiency == 95.5
+            assert phone.model == "S23"
+            assert phone.memory == 256
+            assert phone.color == "Серый"
+
+        def test_lawn_grass_creation(self):
+            """Тест создания газонной травы."""
+            grass = LawnGrass("Трава", "Desc", 500.0, 20, "Россия", "7 дней", "Зеленый")
+            assert grass.name == "Трава"
+            assert grass.price == 500.0
+            assert grass.quantity == 20
+            assert grass.country == "Россия"
+            assert grass.germination_period == "7 дней"
+            assert grass.color == "Зеленый"
+
+        def test_smartphone_is_product(self):
+            """Тест, что Smartphone является наследником Product."""
+            phone = Smartphone("Samsung", "Desc", 1000.0, 10, 95.5, "S23", 256, "Серый")
+            assert isinstance(phone, Product)
+            assert issubclass(Smartphone, Product)
+
+        def test_lawn_grass_is_product(self):
+            """Тест, что LawnGrass является наследником Product."""
+            grass = LawnGrass("Трава", "Desc", 500.0, 20, "Россия", "7 дней", "Зеленый")
+            assert isinstance(grass, Product)
+            assert issubclass(LawnGrass, Product)
+
+        def test_add_same_class_smartphone(self):
+            """Тест сложения двух смартфонов."""
+            phone1 = Smartphone("Samsung", "Desc", 1000.0, 5, 95.5, "S23", 256, "Серый")
+            phone2 = Smartphone("Iphone", "Desc", 2000.0, 3, 98.0, "15", 512, "Black")
+            result = phone1 + phone2
+            assert result == 1000 * 5 + 2000 * 3  # 5000 + 6000 = 11000
+
+        def test_add_same_class_lawn_grass(self):
+            """Тест сложения двух газонных трав."""
+            grass1 = LawnGrass("Трава1", "Desc", 500.0, 10, "Россия", "7 дней", "Зеленый")
+            grass2 = LawnGrass("Трава2", "Desc", 300.0, 5, "США", "5 дней", "Синий")
+            result = grass1 + grass2
+            assert result == 500 * 10 + 300 * 5  # 5000 + 1500 = 6500
+
+        def test_add_different_classes_raises_type_error(self):
+            """Тест: сложение разных классов вызывает TypeError."""
+            phone = Smartphone("Samsung", "Desc", 1000.0, 5, 95.5, "S23", 256, "Серый")
+            grass = LawnGrass("Трава", "Desc", 500.0, 10, "Россия", "7 дней", "Зеленый")
+            with pytest.raises(TypeError, match="Нельзя складывать объекты разных классов"):
+                result = phone + grass
+
+        def test_add_product_raises_type_error(self):
+            """Тест: добавление не-продукта в категорию вызывает TypeError."""
+            category = Category("Тест", "Описание", [])
+            with pytest.raises(TypeError, match="Можно добавлять только объекты класса Product или его наследников"):
+                category.add_product("Not a product")
+
+        def test_add_product_smartphone_to_category(self):
+            """Тест: добавление смартфона в категорию работает."""
+            category = Category("Смартфоны", "Описание", [])
+            phone = Smartphone("Samsung", "Desc", 1000.0, 5, 95.5, "S23", 256, "Серый")
+            category.add_product(phone)
+            assert Category.product_count == 1
+            assert "Samsung" in category.products
+
+        def test_add_product_lawn_grass_to_category(self):
+            """Тест: добавление травы в категорию работает."""
+            category = Category("Трава", "Описание", [])
+            grass = LawnGrass("Трава", "Desc", 500.0, 10, "Россия", "7 дней", "Зеленый")
+            category.add_product(grass)
+            assert Category.product_count == 1
+            assert "Трава" in category.products
+
+        def test_product_count_with_mixed_types(self):
+            """Тест: счётчик продуктов корректно работает со смешанными типами."""
+            Category.category_count = 0
+            Category.product_count = 0
+
+            phone = Smartphone("Samsung", "Desc", 1000.0, 5, 95.5, "S23", 256, "Серый")
+            grass = LawnGrass("Трава", "Desc", 500.0, 10, "Россия", "7 дней", "Зеленый")
+            product = Product("Обычный", "Desc", 100.0, 2)
+
+            cat = Category("Смешанная", "Описание", [phone, grass, product])
+            assert Category.product_count == 3
