@@ -102,3 +102,50 @@ def test_category_add_product_increases_product_count():
     cat.add_product(p)
     assert Category.product_count == old_count + 1
     assert len(cat._Category__products) == 1   # доступ к приватному атрибуту (для теста)
+
+# ===================== НОВЫЕ ТЕСТЫ ДЛЯ ДЗ 15.1 =====================
+def test_product_str_format():
+    """Тест строкового представления продукта (ДЗ 15.1)."""
+    product = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
+    expected = "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт."
+    assert str(product) == expected
+
+
+def test_category_str_format():
+    """Тест строкового представления категории с подсчётом общего количества (ДЗ 15.1)."""
+    p1 = Product("Product1", "Desc1", 100.0, 5)
+    p2 = Product("Product2", "Desc2", 200.0, 3)
+    p3 = Product("Product3", "Desc3", 300.0, 7)
+    category = Category("Electronics", "Electronic devices", [p1, p2, p3])
+    expected = "Electronics, количество продуктов: 15 шт."
+    assert str(category) == expected
+
+
+def test_category_str_empty():
+    """Тест строкового представления пустой категории (ДЗ 15.1)."""
+    category = Category("Empty", "Empty category", [])
+    expected = "Empty, количество продуктов: 0 шт."
+    assert str(category) == expected
+
+
+def test_category_products_uses_str():
+    """Тест, что геттер products использует __str__ продукта (ДЗ 15.1)."""
+    p1 = Product("Samsung", "Desc", 180000.0, 5)
+    p2 = Product("Iphone", "Desc", 210000.0, 8)
+    category = Category("Смартфоны", "Описание", [p1, p2])
+
+    expected = (
+        "Samsung, 180000.0 руб. Остаток: 5 шт.\n"
+        "Iphone, 210000.0 руб. Остаток: 8 шт."
+    )
+    assert category.products == expected
+
+
+def test_product_str_after_price_change():
+    """Тест, что __str__ обновляется после изменения цены (ДЗ 15.1)."""
+    product = Product("Test", "Desc", 100.0, 10)
+    assert str(product) == "Test, 100.0 руб. Остаток: 10 шт."
+
+    # Меняем цену (для теста используем прямое изменение, чтобы обойти сеттер)
+    product._Product__price = 150.0
+    assert str(product) == "Test, 150.0 руб. Остаток: 10 шт."

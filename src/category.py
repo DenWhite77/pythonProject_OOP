@@ -1,5 +1,3 @@
-from product import Product
-
 class Category:
     category_count = 0
     product_count = 0
@@ -23,5 +21,28 @@ class Category:
         Category.product_count += 1
 
     def __str__(self):
-        return f"Категория: {self.name}, товаров: {len(self.__products)}"
-    
+        total_quantity = sum(product.quantity for product in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
+
+    @property
+    def products_list(self):
+        """Возвращает список товаров (для итератора)."""
+        return self.__products
+
+
+class CategoryIterator:
+    """Итератор для перебора товаров в категории."""
+
+    def __init__(self, category):
+        self._products = category.products_list
+        self._index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._index < len(self._products):
+            product = self._products[self._index]
+            self._index += 1
+            return product
+        raise StopIteration
