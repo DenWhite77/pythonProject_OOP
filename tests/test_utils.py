@@ -1,12 +1,12 @@
+import sys
+from pathlib import Path
 import json
 import tempfile
-from pathlib import Path
-from unittest.mock import patch, mock_open
 
-import sys
 sys.path.append(str(Path(__file__).parent.parent / 'src'))
 
-from utils import load_data_from_json
+from utils import load_data_from_json  # noqa: E402
+
 
 def test_load_data_from_json_success():
     data = [{"name": "Cat1", "description": "Desc1", "products": []}]
@@ -18,9 +18,11 @@ def test_load_data_from_json_success():
         assert result[0].name == "Cat1"
     Path(f.name).unlink()
 
+
 def test_load_data_from_json_file_not_found():
     result = load_data_from_json("non_existent.json")
     assert result == []
+
 
 def test_load_data_from_json_invalid_json():
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:

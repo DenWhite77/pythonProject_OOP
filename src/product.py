@@ -1,22 +1,9 @@
 class Product:
-    """Класс для представления товара."""
-
-    def __init__(self, name: str, description: str, price: float, quantity: int):
+    def __init__(self, name, description, price, quantity):
         self.name = name
         self.description = description
         self.__price = price
         self.quantity = quantity
-
-    def __str__(self):
-        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
-
-    def __repr__(self):
-        return f"Product('{self.name}', {self.price})"
-
-    def __add__(self, other):
-        if isinstance(other, Product):
-            return self.price * self.quantity + other.price * other.quantity
-        raise TypeError("Можно складывать только объекты Product")
 
     @property
     def price(self):
@@ -44,3 +31,13 @@ class Product:
             price=product_dict['price'],
             quantity=product_dict['quantity']
         )
+
+    def __str__(self):
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other):
+        if not isinstance(other, Product):
+            raise TypeError("Можно складывать только объекты класса Product или его наследников")
+        if type(self) is not type(other):
+            raise TypeError(f"Нельзя складывать объекты разных классов: {type(self).__name__} и {type(other).__name__}")
+        return self.price * self.quantity + other.price * other.quantity

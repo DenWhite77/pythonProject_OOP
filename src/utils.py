@@ -2,6 +2,7 @@ import json
 from product import Product
 from category import Category
 
+
 def load_data_from_json(file_path: str):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
