@@ -1,12 +1,14 @@
 """Тест: добавление смартфона в категорию работает."""
-import pytest
 from unittest.mock import patch
 
-# Импорты с абсолютным путём (указываем src.)
-from src.product import Product
+import pytest
+
 from src.category import Category
-from src.smartphone import Smartphone
 from src.lawn_grass import LawnGrass
+from src.log_mixin import LogMixin
+# Импорты с абсолютным путём (указываем src.)
+from src.product import BaseProduct, Product
+from src.smartphone import Smartphone
 
 
 # ===== СТАРЫЕ ТЕСТЫ (из прошлых ДЗ) =====
@@ -244,3 +246,60 @@ def test_product_count_with_mixed_types():
     cat = Category("Смешанная", "Описание", [phone, grass, product])
     assert cat.name == "Смешанная"
     assert Category.product_count == 3
+
+
+# ===================== НОВЫЕ ТЕСТЫ ДЛЯ ДЗ 16.2 =====================
+def test_base_product_cannot_be_instantiated():
+    """Тест: нельзя создать объект абстрактного класса BaseProduct."""
+    with pytest.raises(TypeError, match="Can't instantiate abstract class BaseProduct"):
+        BaseProduct()  # Должен выбросить TypeError
+
+
+def test_product_implements_abstract_methods():
+    """Тест: Product реализует все абстрактные методы BaseProduct."""
+    # Проверяем, что у Product есть метод get_total_price
+    assert hasattr(Product, 'get_total_price'), "Product должен реализовывать get_total_price"
+    assert hasattr(Product, '__str__'), "Product должен реализовывать __str__"
+
+    # Проверяем, что методы работают
+    product = Product("Test", "Desc", 100.0, 5)
+    assert product.get_total_price() == 500.0
+    assert str(product) == "Test, 100.0 руб. Остаток: 5 шт."
+
+
+def test_product_is_subclass_of_base_product():
+    """Тест: Product является наследником BaseProduct."""
+    assert issubclass(Product, BaseProduct), "Product должен наследовать BaseProduct"
+
+
+def test_log_mixin_is_used_in_product():
+    """Тест: Product использует LogMixin в цепочке наследования."""
+    assert LogMixin in Product.__mro__, "LogMixin должен быть в цепочке наследования Product"
+
+
+def test_log_mixin_prints_on_creation(capsys):
+    """Тест: при создании Product вызывается LogMixin и печатает лог."""
+    Product("Test", "Description", 100.0, 10)
+    captured = capsys.readouterr()
+    assert "!!! ЛОГИРУЕМ СОЗДАНИЕ ОБЪЕКТА !!!" in captured.out
+    assert "Product('Test', 'Description', 100.0, 10)" in captured.out
+
+
+def test_log_mixin_repr_format():
+    """Тест: формат вывода LogMixin соответствует ожидаемому."""
+    product = Product("TestProduct", "Test description", 150.0, 3)
+    assert repr(product) == "Product(name='TestProduct', price=150.0, quantity=3)"
+
+
+def test_log_mixin_with_multiple_products(capsys):
+    """Тест: каждый новый продукт логируется отдельно."""
+    p1 = Product("First", "Desc1", 100.0, 1)
+    p2 = Product("Second", "Desc2", 200.0, 2)
+    captured = capsys.readouterr()
+    # Проверяем, что в выводе есть оба продукта
+    assert "First" in captured.out
+    assert "Second" in captured.out
+    assert "100.0" in captured.out
+    assert "200.0" in captured.out
+    assert p1.name == "First"
+    assert p2.name == "Second"

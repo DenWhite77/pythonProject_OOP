@@ -1,9 +1,37 @@
-class Product:
+# 1. Импорты из модуля abc
+from abc import ABC, abstractmethod
+
+from src.base_model import BaseModel
+from src.log_mixin import LogMixin  # импортируем миксин
+
+
+# 2. Абстрактный базовый класс BaseProduct
+class BaseProduct(ABC):
+    """Абстрактный базовый класс для всех продуктов."""
+
+    @abstractmethod
+    def get_total_price(self) -> float:
+        """Возвращает общую стоимость всех единиц товара."""
+        pass
+
+    @abstractmethod
+    def __str__(self) -> str:
+        """Возвращает строковое представление продукта."""
+        pass
+
+
+# 3. Класс Product (наследует BaseProduct)
+class Product(LogMixin, BaseProduct, BaseModel):
     def __init__(self, name, description, price, quantity):
+        super().__init__(name, description, price, quantity)  # ← передаём параметры!
         self.name = name
         self.description = description
         self.__price = price
         self.quantity = quantity
+
+    def get_total_price(self) -> float:
+        """Реализация абстрактного метода."""
+        return self.price * self.quantity
 
     @property
     def price(self):
@@ -41,3 +69,16 @@ class Product:
         if type(self) is not type(other):
             raise TypeError(f"Нельзя складывать объекты разных классов: {type(self).__name__} и {type(other).__name__}")
         return self.price * self.quantity + other.price * other.quantity
+
+    def __repr__(self):
+        # Если атрибуты уже установлены — выводим их
+        if hasattr(self, 'name'):
+            return f"Product(name='{self.name}', price={self.price}, quantity={self.quantity})"
+        # Если атрибутов ещё нет — используем параметры из LogMixin
+        if hasattr(self, '_log_params'):
+            args = self._log_params.get('args', ())
+            kwargs = self._log_params.get('kwargs', {})
+            params = ', '.join([repr(a) for a in args] + [f"{k}={v!r}" for k, v in kwargs.items()])
+            return f"Product({params})"
+        # Если ничего нет — возвращаем имя класса
+        return "Product()"

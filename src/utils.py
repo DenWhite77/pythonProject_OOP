@@ -1,6 +1,7 @@
 import json
-from product import Product
+
 from category import Category
+from product import Product
 
 
 def load_data_from_json(file_path: str):
