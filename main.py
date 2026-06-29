@@ -1,4 +1,4 @@
-from src.product_category import load_data_from_json
+from src.product import load_data_from_json
 
 categories = load_data_from_json('products.json')
 
