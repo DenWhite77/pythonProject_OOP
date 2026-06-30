@@ -23,7 +23,11 @@ class BaseProduct(ABC):
 # 3. Класс Product (наследует BaseProduct)
 class Product(LogMixin, BaseProduct, BaseModel):
     def __init__(self, name, description, price, quantity):
-        super().__init__(name, description, price, quantity)  # ← передаём параметры!
+        if quantity <= 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
+
+        super().__init__(name, description, price, quantity)  # ← сначала вызываем родителя
+
         self.name = name
         self.description = description
         self.__price = price

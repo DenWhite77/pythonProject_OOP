@@ -207,10 +207,12 @@ def test_add_different_classes_raises_type_error():
         _ = phone + grass
 
 
-def test_add_product_raises_type_error():
+def test_add_product_raises_type_error(capsys):
+    """Тест: добавление не-продукта в категорию печатает сообщение об ошибке."""
     category = Category("Тест", "Описание", [])
-    with pytest.raises(TypeError, match="Можно добавлять только объекты класса Product или его наследников"):
-        category.add_product("Not a product")
+    category.add_product("Not a product")
+    captured = capsys.readouterr()
+    assert "Ошибка типа: Можно добавлять только объекты класса Product или его наследников" in captured.out
 
 
 def test_add_product_smartphone_to_category():
@@ -303,3 +305,24 @@ def test_log_mixin_with_multiple_products(capsys):
     assert "200.0" in captured.out
     assert p1.name == "First"
     assert p2.name == "Second"
+
+
+def test_product_quantity_zero():
+    """Тест: создание продукта с нулевым количеством вызывает ValueError."""
+    with pytest.raises(ValueError, match="Товар с нулевым количеством не может быть добавлен"):
+        Product("Test", "Desc", 100.0, 0)
+
+
+def test_category_middle_price():
+    """Тест: средняя цена в категории."""
+    p1 = Product("A", "", 100.0, 1)
+    p2 = Product("B", "", 200.0, 1)
+    p3 = Product("C", "", 300.0, 1)
+    category = Category("Test", "", [p1, p2, p3])
+    assert category.middle_price() == 200.0
+
+
+def test_category_middle_price_empty():
+    """Тест: средняя цена в пустой категории."""
+    category = Category("Empty", "", [])
+    assert category.middle_price() == 0
