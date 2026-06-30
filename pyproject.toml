@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "oop_homework"
 version = "1.0.0"
 description = "Homework on OOP_14.1: classes Product and Category"
-authors = [{name = "Denis White", email = "your.email@example.com"}]
+authors = [{ name = "Denis White", email = "your.email@example.com" }]
 dependencies = []
 
 [project.optional-dependencies]
@@ -15,3 +15,9 @@ test = ["pytest>=9.0.3"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
+addopts = [
+    "--cov=src",
+    "--cov-report=term",
+    "--cov-report=html",
+    "--cov-fail-under=75",
+]
